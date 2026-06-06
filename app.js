@@ -12,7 +12,7 @@
    Cambia '' por la ruta de tu imagen PNG/JPG
    Ejemplo: './mi-logo.png'
    ─────────────────────────────────────────── */
-const APP_ICON = '';
+const APP_ICON = 'KingaPlay.png';
 
 /* ── ESTADO ──────────────────────────────── */
 let library           = [];
