@@ -49,7 +49,7 @@ const VIDEO_EXTS = ['mp4','mkv','webm','mov','avi','m4v','3gp','ogv','ts'];
 
 /* Radios Colombia */
 const RADIOS_CO = [
-  { name:'Caracol Radio',    url:'https://24233.live.streamtheworld.com/CARACOL_RADIO.mp3',        genre:'Noticias' },
+  { name:'Radionica',        url:'https://www.radionacionaldecolombia.gov.co/stream/radionica_stream.mp3',                  genre:'Rock/Pop' },
   { name:'W Radio',          url:'https://www.emisorascolombianas.co/la-w.mp3',       genre:'Noticias' },
   { name:'La FM',            url:'https://www.emisorascolombianas.co/la-fm.mp3',             genre:'Noticias' },
   { name:'Los 40 Colombia',  url:'https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_COL.mp3',         genre:'Pop/Hit'  },
