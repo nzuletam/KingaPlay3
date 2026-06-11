@@ -15,19 +15,18 @@
 </head>
 <body>
 
-<!-- ═══════ SPLASH ═══════ -->
+<!-- ══ SPLASH ══ -->
 <div id="splash">
   <div class="splash-logo">
     <div class="splash-icon" id="splashIcon">
-      <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 60 60" fill="none">
         <rect width="60" height="60" rx="14" fill="url(#sbg)"/>
         <polygon points="23,18 23,42 44,30" fill="white" opacity="0.95"/>
         <rect x="12" y="26" width="5" height="18" rx="2.5" fill="white" opacity="0.65"/>
         <rect x="19" y="19" width="5" height="25" rx="2.5" fill="white" opacity="0.8"/>
         <defs>
           <linearGradient id="sbg" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#e040fb"/>
-            <stop offset="100%" stop-color="#ff6d00"/>
+            <stop offset="0%" stop-color="#e040fb"/><stop offset="100%" stop-color="#ff6d00"/>
           </linearGradient>
         </defs>
       </svg>
@@ -42,10 +41,9 @@
   </div>
 </div>
 
-<!-- ═══════ APP ═══════ -->
+<!-- ══ APP ══ -->
 <div id="app" class="hidden">
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-view="library" onclick="showView('library')">
       <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
@@ -75,7 +73,7 @@
 
   <main class="main-content">
 
-    <!-- ── AUDIO ── -->
+    <!-- AUDIO -->
     <div id="view-library" class="view active">
       <div class="view-header">
         <div class="header-top">
@@ -99,7 +97,7 @@
       </div>
     </div>
 
-    <!-- ── VIDEO ── -->
+    <!-- VIDEO -->
     <div id="view-videos" class="view">
       <div class="view-header">
         <div class="header-top">
@@ -123,7 +121,7 @@
       </div>
     </div>
 
-    <!-- ── LISTAS DE REPRODUCCIÓN ── -->
+    <!-- LISTAS -->
     <div id="view-playlists" class="view">
       <div class="view-header">
         <div class="header-top">
@@ -137,17 +135,17 @@
       <div id="playlist-list" class="playlist-list">
         <div class="empty-state">
           <div class="empty-icon">📋</div>
-          <p>No tienes listas de reproducción<br>Crea una para organizar tu música</p>
+          <p>No tienes listas de reproducción.<br>Crea una para organizar tu música.</p>
           <button class="btn-primary" onclick="showCreatePlaylist()">Crear Lista</button>
         </div>
       </div>
     </div>
 
-    <!-- ── ONLINE ── -->
+    <!-- ONLINE -->
     <div id="view-online" class="view">
       <div class="view-header">
-        <h2>Reproducción Online</h2>
-        <p class="sub-label">YouTube y radios web</p>
+        <h2>Online</h2>
+        <p class="sub-label">YouTube y radios en vivo</p>
       </div>
       <div class="online-content">
 
@@ -157,74 +155,80 @@
             <div class="online-section-icon youtube-icon">▶</div>
             <div>
               <div class="online-section-title">YouTube</div>
-              <div class="online-section-sub">Pega el enlace de un video o playlist</div>
+              <div class="online-section-sub">Reproduce cualquier video directo en la app</div>
             </div>
           </div>
           <div class="online-input-row">
-            <input type="url" id="youtubeUrl" class="online-input"
-              placeholder="https://youtube.com/watch?v=...">
-            <button class="online-go-btn" onclick="playYoutube()">
-              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+            <input type="url" id="youtubeUrlInput" class="online-input" placeholder="https://youtube.com/watch?v=...">
+            <button class="online-go-btn" onclick="playYoutubeUrl()">
+              <svg viewBox="0 0 24 24" width="15" height="15"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
             </button>
           </div>
-          <div class="online-hints">
-            <span class="hint-label">Ejemplos:</span>
-            <button class="hint-chip" onclick="setYoutubeExample('https://www.youtube.com/watch?v=dQw4w9WgXcQ')">Video</button>
-            <button class="hint-chip" onclick="setYoutubeExample('https://www.youtube.com/playlist?list=PLrAXtmErZgOeiKm4sgNOknc9TTnx7Uu9')">Playlist</button>
+          <!-- Player YouTube embebido -->
+          <div id="ytNowSection" style="display:none">
+            <div style="font-size:0.7rem;color:var(--text-2);margin-bottom:6px;word-break:break-all" id="ytNowLabel"></div>
+            <div class="yt-embed-wrap" id="ytEmbedWrap" style="display:none"></div>
+            <button onclick="stopYoutube()" style="margin-top:10px;background:var(--accent)18;border:1px solid var(--accent)44;color:var(--accent);padding:7px 16px;border-radius:16px;font-family:var(--font-display);font-size:0.78rem;cursor:pointer;">
+              ⏹ Detener YouTube
+            </button>
           </div>
         </div>
 
-        <!-- Radios Web -->
+        <!-- Radio personalizada -->
         <div class="online-section">
           <div class="online-section-header">
             <div class="online-section-icon radio-icon">📻</div>
             <div>
-              <div class="online-section-title">Radios Web</div>
-              <div class="online-section-sub">Stream directo por URL</div>
+              <div class="online-section-title">Radio personalizada</div>
+              <div class="online-section-sub">Stream directo por URL (MP3/AAC)</div>
             </div>
           </div>
           <div class="online-input-row">
-            <input type="url" id="radioUrl" class="online-input"
-              placeholder="https://stream.radio.com/live.mp3">
-            <button class="online-go-btn" onclick="playRadio()">
-              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+            <input type="url" id="radioUrlInput" class="online-input" placeholder="https://stream.radio.com/live.mp3">
+            <button class="online-go-btn" onclick="playCustomRadio()">
+              <svg viewBox="0 0 24 24" width="15" height="15"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Radios Predefinidas -->
+        <!-- Radios Colombia -->
         <div class="online-section">
-          <div class="online-section-title" style="margin-bottom:12px">Radios Populares</div>
-          <div class="radio-grid" id="radioGrid">
-            <!-- generado por JS -->
-          </div>
+          <div class="online-section-title" style="margin-bottom:4px">🇨🇴 Radios Colombia</div>
+          <div class="radio-group-title">Principales emisoras</div>
+          <div class="radio-grid" id="radioCO"></div>
         </div>
 
-        <!-- Player Online -->
-        <div class="online-player" id="onlinePlayer" style="display:none">
-          <div class="online-player-info">
-            <div class="online-now-label">EN VIVO</div>
-            <div class="online-track-name" id="onlineTrackName">—</div>
-            <div class="online-track-sub" id="onlineTrackSub">—</div>
-          </div>
-          <div class="online-player-controls">
-            <button class="online-ctrl-btn" onclick="toggleOnlinePlay()" id="onlinePlayBtn">
-              <svg id="onlinePlayIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+        <!-- Radios EEUU -->
+        <div class="online-section">
+          <div class="online-section-title" style="margin-bottom:4px">🇺🇸 Radios Estados Unidos</div>
+          <div class="radio-group-title">Top emisoras</div>
+          <div class="radio-grid" id="radioUS"></div>
+        </div>
+
+        <!-- Player strip (radio activa) -->
+        <div id="onlinePlayerStrip" class="online-player" style="display:none">
+          <div class="online-now">EN VIVO</div>
+          <div class="online-track-name" id="onlineTrackName">—</div>
+          <div class="online-track-sub" id="onlineTrackSub">—</div>
+          <div class="online-ctrl-row">
+            <button class="online-play-btn" onclick="toggleOnlinePlay()">
+              <svg id="onlinePlayIcon" viewBox="0 0 24 24" width="18" height="18"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
             </button>
-            <button class="online-ctrl-btn stop" onclick="stopOnline()">
-              <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>
+            <button class="online-stop-btn" onclick="stopOnline()">
+              <svg viewBox="0 0 24 24" width="14" height="14"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>
             </button>
           </div>
           <div class="online-vol-row">
             <svg class="vol-icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-            <input type="range" class="volume-slider" id="onlineVolumeSlider" min="0" max="100" value="80" oninput="setOnlineVolume(this.value)">
+            <input type="range" class="volume-slider" id="onlineVolSlider" min="0" max="100" value="80" oninput="setOnlineVolume(this.value)">
+            <svg class="vol-icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- ── FAVORITOS ── -->
+    <!-- FAVORITOS -->
     <div id="view-favorites" class="view">
       <div class="view-header">
         <h2>Favoritos</h2>
@@ -235,16 +239,12 @@
       </div>
     </div>
 
-    <!-- ── CONFIGURACIÓN ── -->
+    <!-- CONFIG -->
     <div id="view-settings" class="view">
       <div class="view-header"><h2>Configuración</h2></div>
       <div class="settings-content">
         <div class="setting-group">
           <h3 class="setting-group-title">Reproducción</h3>
-          <div class="setting-item">
-            <span>Reanudar al abrir</span>
-            <label class="toggle"><input type="checkbox" id="resumeToggle"><span class="toggle-slider"></span></label>
-          </div>
           <div class="setting-item">
             <span>Video en pantalla completa</span>
             <label class="toggle"><input type="checkbox" id="videoFullscreenToggle" checked><span class="toggle-slider"></span></label>
@@ -256,7 +256,7 @@
         </div>
         <div class="setting-group">
           <h3 class="setting-group-title">Información</h3>
-          <div class="setting-item-info"><span>Versión</span><span class="val">4.0.0</span></div>
+          <div class="setting-item-info"><span>Versión</span><span class="val">5.0.0</span></div>
           <div class="setting-item-info"><span>Canciones</span><span class="val" id="totalSongs">0</span></div>
           <div class="setting-item-info"><span>Videos</span><span class="val" id="totalVideos">0</span></div>
           <div class="setting-item-info"><span>Listas</span><span class="val" id="totalPlaylists">0</span></div>
@@ -270,7 +270,7 @@
 
   <!-- MINI PLAYER -->
   <div id="mini-player" class="mini-player hidden" onclick="openPlayer()">
-    <div class="mini-art"><div id="miniArt">♪</div></div>
+    <div class="mini-art">♪</div>
     <div class="mini-info">
       <span id="miniTitle" class="mini-title">Sin reproducción</span>
       <span id="miniArtist" class="mini-artist">—</span>
@@ -279,7 +279,7 @@
       <button onclick="event.stopPropagation();prevTrack()" class="mini-btn">
         <svg viewBox="0 0 24 24"><polygon points="19,20 9,12 19,4" stroke="currentColor" stroke-width="2" fill="none"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg>
       </button>
-      <button onclick="event.stopPropagation();togglePlay()" id="miniPlayBtn" class="mini-btn play">
+      <button onclick="event.stopPropagation();togglePlay()" class="mini-btn play">
         <svg id="miniPlayIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
       </button>
       <button onclick="event.stopPropagation();nextTrack()" class="mini-btn">
@@ -294,23 +294,20 @@
 
 </div><!-- /#app -->
 
-<!-- ═══════ AUDIO PLAYER MODAL ═══════ -->
+<!-- ══ AUDIO PLAYER MODAL ══ -->
 <div id="player-modal" class="player-modal hidden">
   <div class="player-bg" id="playerBg"></div>
-  <div class="player-overlay"></div>
   <div class="player-inner">
-
     <div class="player-header">
       <button class="player-icon-btn" onclick="closePlayer()">
         <svg viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="2" fill="none"/></svg>
       </button>
       <span class="now-playing-label">REPRODUCIENDO · AUDIO</span>
-      <button class="player-icon-btn" onclick="toggleFavorite(currentTrackIndex,'audio')" id="favBtn">
+      <button class="player-icon-btn" id="favBtn" onclick="toggleFavorite(currentTrackIndex,'audio')">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
       </button>
     </div>
 
-    <!-- Album Art -->
     <div class="album-art-container">
       <div class="album-art" id="albumArt">
         <div class="album-art-inner">
@@ -318,17 +315,14 @@
           <div class="vinyl-center">♪</div>
         </div>
       </div>
-      <div class="art-glow"></div>
     </div>
 
-    <!-- Info -->
     <div class="player-info">
       <h2 class="player-title" id="playerTitle">Selecciona una pista</h2>
       <p class="player-artist" id="playerArtist">—</p>
       <span class="player-format" id="playerFormat">—</span>
     </div>
 
-    <!-- Progress -->
     <div class="progress-section">
       <div class="progress-bar-container" onclick="seekTrack(event)">
         <div class="progress-bar-bg"></div>
@@ -341,45 +335,41 @@
       </div>
     </div>
 
-    <!-- Controles principales -->
+    <!-- Controles: Shuffle · Prev · Play · Next · Stop · Repeat -->
     <div class="controls-section">
-      <button class="ctrl-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Aleatorio">
+      <button class="ctrl-btn" id="shuffleBtn" onclick="toggleShuffle()">
         <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none"/><line x1="4" y1="20" x2="21" y2="3" stroke="currentColor" stroke-width="2"/><polyline points="21 16 21 21 16 21" stroke="currentColor" stroke-width="2" fill="none"/><line x1="4" y1="4" x2="9" y2="9" stroke="currentColor" stroke-width="2"/></svg>
       </button>
-      <button class="ctrl-btn prev-btn" onclick="prevTrack()" title="Anterior">
+      <button class="ctrl-btn" onclick="prevTrack()">
         <svg viewBox="0 0 24 24"><polygon points="19,20 9,12 19,4" stroke="currentColor" stroke-width="2" fill="none"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg>
       </button>
       <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()">
         <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
       </button>
-      <button class="ctrl-btn next-btn" onclick="nextTrack()" title="Siguiente">
+      <button class="ctrl-btn" onclick="nextTrack()">
         <svg viewBox="0 0 24 24"><polygon points="5,4 15,12 5,20" stroke="currentColor" stroke-width="2" fill="none"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg>
       </button>
-      <button class="ctrl-btn stop-btn" onclick="stopTrack()" title="Detener">
+      <button class="ctrl-btn" onclick="stopTrack()">
         <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>
       </button>
-      <button class="ctrl-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repetir">
+      <button class="ctrl-btn" id="repeatBtn" onclick="toggleRepeat()">
         <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 11V9a4 4 0 014-4h14" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="7 23 3 19 7 15" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" fill="none"/></svg>
       </button>
     </div>
 
-    <!-- Controles de audio -->
+    <!-- Panel de audio: Volumen + Silenciar + EQ -->
     <div class="audio-controls-panel">
-      <div class="audio-ctrl-header">
-        <span class="panel-label">CONTROLES DE AUDIO</span>
-      </div>
-
-      <!-- Volumen + Silenciar -->
+      <div class="panel-label">CONTROLES DE AUDIO</div>
       <div class="volume-row">
-        <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="Silenciar">
-          <svg id="muteIcon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        <button class="mute-btn" onclick="toggleMute()">
+          <svg id="muteIcon" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
         </button>
-        <input type="range" id="volumeSlider" min="0" max="100" value="80"
-          oninput="setVolume(this.value)" class="volume-slider">
+        <input type="range" id="volumeSlider" min="0" max="100" value="80" oninput="setVolume(this.value)" class="volume-slider">
         <span class="vol-value" id="volValue">80%</span>
       </div>
-
-      <!-- Ecualizador -->
       <div class="eq-section">
         <div class="eq-header">
           <span class="eq-label">ECUALIZADOR</span>
@@ -394,12 +384,10 @@
         </div>
         <div class="eq-bands" id="eqBands"></div>
       </div>
-
-      <!-- Agregar a lista -->
       <div class="add-to-playlist-row">
         <span class="panel-label">AGREGAR A LISTA</span>
         <button class="btn-add-playlist" onclick="showAddToPlaylist(currentTrackIndex,'audio')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+          <svg viewBox="0 0 24 24" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
           Agregar
         </button>
       </div>
@@ -408,7 +396,7 @@
   </div>
 </div>
 
-<!-- ═══════ VIDEO PLAYER MODAL ═══════ -->
+<!-- ══ VIDEO PLAYER MODAL ══ -->
 <div id="video-modal" class="video-modal hidden">
   <div class="video-modal-inner">
     <div class="video-header" id="videoHeader">
@@ -440,21 +428,21 @@
         <span class="video-time" id="videoCurrentTime">0:00</span>
         <span class="video-time" id="videoTotalTime">0:00</span>
       </div>
-      <!-- Controles video completos -->
+      <!-- Controles: Prev · Play · Next · Stop · Mute · Fav -->
       <div class="video-ctrl-row">
-        <button class="video-ctrl-btn" onclick="videoPrev()" title="Anterior">
+        <button class="video-ctrl-btn" onclick="videoPrev()">
           <svg viewBox="0 0 24 24"><polygon points="19,20 9,12 19,4" stroke="white" stroke-width="2" fill="none"/><line x1="5" y1="19" x2="5" y2="5" stroke="white" stroke-width="2"/></svg>
         </button>
-        <button class="video-ctrl-btn video-play-btn" id="videoPlayBtn" onclick="toggleVideoPlay()">
+        <button class="video-ctrl-btn video-play-btn" onclick="toggleVideoPlay()">
           <svg id="videoPlayIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
         </button>
-        <button class="video-ctrl-btn" onclick="videoNext()" title="Siguiente">
+        <button class="video-ctrl-btn" onclick="videoNext()">
           <svg viewBox="0 0 24 24"><polygon points="5,4 15,12 5,20" stroke="white" stroke-width="2" fill="none"/><line x1="19" y1="5" x2="19" y2="19" stroke="white" stroke-width="2"/></svg>
         </button>
-        <button class="video-ctrl-btn" onclick="stopVideo()" title="Detener">
+        <button class="video-ctrl-btn" onclick="stopVideo()">
           <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" stroke="white" stroke-width="2" fill="none"/></svg>
         </button>
-        <button class="video-ctrl-btn" onclick="toggleVideoMute()" id="videoMuteBtn" title="Silenciar">
+        <button class="video-ctrl-btn" onclick="toggleVideoMute()" id="videoMuteBtn">
           <svg id="videoMuteIcon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="white" stroke-width="2" fill="none"/><path d="M15.54 8.46a5 5 0 010 7.07" stroke="white" stroke-width="2" fill="none"/></svg>
         </button>
         <button class="video-ctrl-btn" onclick="toggleFavorite(currentVideoIndex,'video')" id="videoFavBtn">
@@ -470,14 +458,13 @@
   </div>
 </div>
 
-<!-- ═══════ MODALES SECUNDARIOS ═══════ -->
+<!-- ══ MODALES SECUNDARIOS ══ -->
 
-<!-- SCAN MODAL -->
+<!-- Scan -->
 <div id="scan-modal" class="modal-overlay hidden">
   <div class="scan-dialog">
     <div class="scan-icon">
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="25" stroke="url(#sc)" stroke-width="2" fill="none" stroke-dasharray="157" class="scan-circle"/>
+      <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" stroke="url(#sc)" stroke-width="2" fill="none" stroke-dasharray="157" class="scan-circle"/>
         <defs><linearGradient id="sc" x1="0" y1="0" x2="60" y2="60"><stop offset="0%" stop-color="#e040fb"/><stop offset="100%" stop-color="#ff6d00"/></linearGradient></defs>
       </svg>
       <div class="scan-pulse"></div>
@@ -489,7 +476,7 @@
   </div>
 </div>
 
-<!-- CREATE PLAYLIST MODAL -->
+<!-- Crear lista -->
 <div id="create-playlist-modal" class="modal-overlay hidden" onclick="closeCreatePlaylist()">
   <div class="dialog-box" onclick="event.stopPropagation()">
     <h3>Nueva Lista</h3>
@@ -501,19 +488,19 @@
   </div>
 </div>
 
-<!-- ADD TO PLAYLIST MODAL -->
+<!-- Agregar a lista -->
 <div id="add-playlist-modal" class="modal-overlay hidden" onclick="closeAddToPlaylist()">
   <div class="dialog-box" onclick="event.stopPropagation()">
     <h3>Agregar a Lista</h3>
     <div id="playlist-picker" class="playlist-picker"></div>
     <div class="dialog-actions">
       <button class="btn-secondary" onclick="closeAddToPlaylist()">Cancelar</button>
-      <button class="btn-primary" onclick="showCreatePlaylist()">+ Nueva Lista</button>
+      <button class="btn-primary" onclick="showCreatePlaylist()">+ Nueva</button>
     </div>
   </div>
 </div>
 
-<!-- CONTEXT MENU -->
+<!-- Menú contextual -->
 <div id="context-menu" class="context-menu hidden">
   <button onclick="toggleFavoriteContext()">
     <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="var(--primary)" stroke-width="2" fill="none"/></svg>
@@ -533,7 +520,7 @@
   </button>
 </div>
 
-<!-- INFO MODAL -->
+<!-- Info modal -->
 <div id="info-modal" class="modal-overlay hidden" onclick="closeInfoModal()">
   <div class="info-dialog" onclick="event.stopPropagation()">
     <h3>Información del Archivo</h3>
