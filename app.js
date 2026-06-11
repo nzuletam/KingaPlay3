@@ -49,9 +49,9 @@ const VIDEO_EXTS = ['mp4','mkv','webm','mov','avi','m4v','3gp','ogv','ts'];
 
 /* Radios Colombia */
 const RADIOS_CO = [
-  { name:'Caracol Radio',    url:'https://www.emisorascolombianas.co/caracol-radio',        genre:'Noticias' },
-  { name:'W Radio',          url:'https://www.emisorascolombianas.co/la-w',       genre:'Noticias' },
-  { name:'La FM',            url:'https://www.emisorascolombianas.co/la-fm',             genre:'Noticias' },
+  { name:'Caracol Radio',    url:'https://www.emisorascolombianas.co/caracol-radio.mp3',        genre:'Noticias' },
+  { name:'W Radio',          url:'https://www.emisorascolombianas.co/la-w.mp3',       genre:'Noticias' },
+  { name:'La FM',            url:'https://www.emisorascolombianas.co/la-fm.mp3',             genre:'Noticias' },
   { name:'Los 40 Colombia',  url:'https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_COL.mp3',         genre:'Pop/Hit'  },
   { name:'Tropicana',        url:'https://playerservices.streamtheworld.com/api/livestream-redirect/TROPICANACOL.mp3',      genre:'Tropical' },
   { name:'Olímpica Stereo',  url:'https://playerservices.streamtheworld.com/api/livestream-redirect/OLIMPICASTER.mp3',      genre:'Vallenato'},
