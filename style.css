@@ -1,8 +1,5 @@
 /* ============================================
    KINGAPLAY v5.0
-   - Eliminado ::before en song-item (causa ruido visual en Android WebView)
-   - Eliminado backdrop-filter (no soportado bien en WebView)
-   - border-left coloreado directo en lugar de pseudo-elemento
    ============================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -315,6 +312,11 @@ html, body {
 .radio-group-title {
   font-size: 0.68rem; font-weight: 700; letter-spacing: 1.2px;
   color: var(--text-2); text-transform: uppercase; margin: 14px 0 8px;
+}
+.radio-genre-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 1.2px;
+  color: var(--primary); text-transform: uppercase;
+  margin: 14px 0 7px; padding-left: 2px;
 }
 .radio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 4px; }
 .radio-card {

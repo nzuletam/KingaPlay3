@@ -1,9 +1,8 @@
 /* ============================================
    KINGAPLAY v5.0
-   - Fix: ruido visual en Android WebView
    - Fix: listas de reproducción con persistencia real
    - YouTube: embed con búsqueda integrada
-   - Radios: Colombia + EEUU con streams directos
+   - Radios EEUU: 20 emisoras por género con streams abiertos
    ============================================ */
 'use strict';
 
@@ -47,28 +46,44 @@ const EQ_PRESETS = {
 const AUDIO_EXTS = ['mp3','flac','aac','wav','ogg','m4a','wma','opus'];
 const VIDEO_EXTS = ['mp4','mkv','webm','mov','avi','m4v','3gp','ogv','ts'];
 
-/* Radios Colombia */
-const RADIOS_CO = [
-  { name:'Radionica',        url:'https://www.radionacionaldecolombia.gov.co/stream/radionica_stream.mp3',                  genre:'Rock/Pop' },
-  { name:'W Radio',          url:'https://www.emisorascolombianas.co/la-w.mp3',       genre:'Noticias' },
-  { name:'La FM',            url:'https://www.emisorascolombianas.co/la-fm.mp3',             genre:'Noticias' },
-  { name:'Los 40 Colombia',  url:'https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_COL.mp3',         genre:'Pop/Hit'  },
-  { name:'Tropicana',        url:'https://playerservices.streamtheworld.com/api/livestream-redirect/TROPICANACOL.mp3',      genre:'Tropical' },
-  { name:'Olímpica Stereo',  url:'https://playerservices.streamtheworld.com/api/livestream-redirect/OLIMPICASTER.mp3',      genre:'Vallenato'},
-  { name:'RCN Radio',        url:'https://playerservices.streamtheworld.com/api/livestream-redirect/RCNRADIO.mp3',          genre:'Noticias' },
-  { name:'Oxígeno',          url:'https://playerservices.streamtheworld.com/api/livestream-redirect/OXIGENORADIO.mp3',      genre:'Rock/Pop' },
-];
-
-/* Radios EEUU */
+/* ══════════════════════════════════════════════════════
+   RADIOS EEUU — 20 emisoras verificadas con streams abiertos
+   Organizadas por género
+   ══════════════════════════════════════════════════════ */
 const RADIOS_US = [
-  { name:'NPR News',         url:'https://npr-ice.streamguys1.com/live.mp3',                                                genre:'Noticias' },
-  { name:'iHeart Top 40',    url:'https://stream.revma.ihrhls.com/zc3297',                                                  genre:'Pop/Hit'  },
-  { name:'Jazz24',           url:'https://live.wostreaming.net/direct/ppm-jazz24aac-ibc1',                                  genre:'Jazz'     },
-  { name:'Classic FM',       url:'https://media-ice.musicradio.com/ClassicFMMP3',                                           genre:'Clásica'  },
-  { name:'Rock Antenne',     url:'https://stream.rockantenne.de/rockantenne/stream/mp3',                                    genre:'Rock'     },
-  { name:'SomaFM GrooveSalad',url:'https://ice1.somafm.com/groovesalad-128-mp3',                                           genre:'Ambient'  },
-  { name:'BBS Radio 1',      url:'https://stream.bbsradio.com:8443/bbsr1_128.mp3',                                          genre:'Variado'  },
-  { name:'Radio Paradise',   url:'https://stream.radioparadise.com/mp3-128',                                                genre:'Indie'    },
+  // ── NOTICIAS / TALK ──
+  { name:'NPR News',           url:'https://npr-ice.streamguys1.com/live.mp3',                         genre:'Noticias'   },
+  { name:'NPR Classical',      url:'https://classical-ice.streamguys1.com/live.mp3',                   genre:'Noticias'   },
+  { name:'BBC World Service',  url:'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',          genre:'Noticias'   },
+
+  // ── POP / TOP 40 ──
+  { name:'Radio Paradise',     url:'https://stream.radioparadise.com/mp3-128',                         genre:'Pop/Indie'  },
+  { name:'WFMU Freeform',      url:'https://stream0.wfmu.org/freeform-128k',                           genre:'Pop/Indie'  },
+  { name:'181.fm Top 40',      url:'https://listen.181fm.com/181-top40_128k.mp3',                      genre:'Pop/Hit'    },
+  { name:'181.fm Chillout',    url:'https://listen.181fm.com/181-chillout_128k.mp3',                   genre:'Chill'      },
+
+  // ── ROCK ──
+  { name:'Radio Caprice Rock', url:'https://pub0302.101.ru:8000/stream/air/aac/64/100',                genre:'Rock'       },
+  { name:'SomaFM Digitalis',   url:'https://ice1.somafm.com/digitalis-128-mp3',                       genre:'Rock/Indie' },
+  { name:'SomaFM Metal Detector',url:'https://ice1.somafm.com/metal-128-mp3',                         genre:'Metal'      },
+
+  // ── JAZZ ──
+  { name:'Jazz24',             url:'https://live.wostreaming.net/direct/ppm-jazz24aac-ibc1',          genre:'Jazz'       },
+  { name:'SomaFM Lush',        url:'https://ice1.somafm.com/lush-128-mp3',                            genre:'Jazz/Soul'  },
+  { name:'181.fm Smooth Jazz', url:'https://listen.181fm.com/181-smoothjazz_128k.mp3',                genre:'Smooth Jazz'},
+
+  // ── CLÁSICA ──
+  { name:'SomaFM Baroque Cafe',url:'https://ice1.somafm.com/baroque-128-mp3',                         genre:'Clásica'    },
+  { name:'181.fm Classical',   url:'https://listen.181fm.com/181-classical_128k.mp3',                 genre:'Clásica'    },
+
+  // ── ELECTRÓNICA / AMBIENT ──
+  { name:'SomaFM GrooveSalad', url:'https://ice1.somafm.com/groovesalad-128-mp3',                     genre:'Ambient'    },
+  { name:'SomaFM Drone Zone',  url:'https://ice1.somafm.com/dronezone-128-mp3',                       genre:'Ambient'    },
+  { name:'SomaFM Fluid',       url:'https://ice1.somafm.com/fluid-128-mp3',                           genre:'Electronic' },
+
+  // ── R&B / SOUL / HIP-HOP ──
+  { name:'181.fm Old School HH',url:'https://listen.181fm.com/181-oldschool_128k.mp3',                genre:'Hip-Hop'    },
+  { name:'181.fm Soul',        url:'https://listen.181fm.com/181-soul_128k.mp3',                      genre:'R&B/Soul'   },
 ];
 
 /* ══ INIT ════════════════════════════════════ */
@@ -763,20 +778,31 @@ function stopYoutube() {
 const onlineAudio = document.getElementById('onlineAudioEl');
 
 function buildRadioGrids() {
-  buildGrid('radioCO', RADIOS_CO);
-  buildGrid('radioUS', RADIOS_US);
-}
+  // Agrupar las emisoras de EEUU por género
+  const groups = {};
+  RADIOS_US.forEach(r => {
+    if (!groups[r.genre]) groups[r.genre] = [];
+    groups[r.genre].push(r);
+  });
 
-function buildGrid(elId, radios) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  el.innerHTML = radios.map((r, i) =>
-    `<div class="radio-card" data-radio-src="${esc(r.url)}" data-radio-name="${esc(r.name)}" onclick="playRadioCard(this)">` +
-      `<div class="radio-card-name">${esc(r.name)}</div>` +
-      `<div class="radio-card-genre">${esc(r.genre)}</div>` +
-      `<div class="radio-card-live">EN VIVO</div>` +
-    `</div>`
-  ).join('');
+  const container = document.getElementById('radioUS');
+  if (!container) return;
+
+  let html = '';
+  Object.entries(groups).forEach(([genre, radios]) => {
+    html += `<div class="radio-genre-label">${esc(genre)}</div>`;
+    html += `<div class="radio-grid">`;
+    radios.forEach(r => {
+      html +=
+        `<div class="radio-card" data-radio-src="${esc(r.url)}" data-radio-name="${esc(r.name)}" onclick="playRadioCard(this)">` +
+          `<div class="radio-card-name">${esc(r.name)}</div>` +
+          `<div class="radio-card-genre">${esc(r.genre)}</div>` +
+          `<div class="radio-card-live">EN VIVO</div>` +
+        `</div>`;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
 }
 
 function playRadioCard(el) {
