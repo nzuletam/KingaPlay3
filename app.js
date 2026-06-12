@@ -1,9 +1,5 @@
 /* ============================================
    KINGAPLAY v5.0
-   - Fix: ruido visual en Android WebView
-   - Fix: listas de reproducción con persistencia real
-   - YouTube: embed con búsqueda integrada
-   - Radios EEUU: 20 emisoras por género con streams abiertos
    ============================================ */
 'use strict';
 
@@ -48,8 +44,7 @@ const AUDIO_EXTS = ['mp3','flac','aac','wav','ogg','m4a','wma','opus'];
 const VIDEO_EXTS = ['mp4','mkv','webm','mov','avi','m4v','3gp','ogv','ts'];
 
 /* ══════════════════════════════════════════════════════
-   RADIOS EEUU — 20 emisoras verificadas con streams abiertos
-   Organizadas por género
+   RADIOS EEUU — Emisoras verificadas con streams abiertos
    ══════════════════════════════════════════════════════ */
 const RADIOS_US = [
   // ── NOTICIAS / TALK ──
@@ -89,21 +84,42 @@ const RADIOS_US = [
 
 /* ══ INIT ════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
-  applyAppIcon();
-  loadState();
-  buildEQ();
-  buildRadioGrids();
+  try { applyAppIcon();    } catch(e) { console.warn('applyAppIcon:', e); }
+  try { loadState();       } catch(e) { console.warn('loadState:', e); }
+  try { buildEQ();         } catch(e) { console.warn('buildEQ:', e); }
+  try { buildRadioGrids(); } catch(e) { console.warn('buildRadioGrids:', e); }
+  // Enviar señal al SW para activarse inmediatamente si hay versión nueva
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+  }
   startSplash();
 });
 
 function startSplash() {
+  const splash = document.getElementById('splash');
+  const app    = document.getElementById('app');
+  if (!splash || !app) return;
+
+  // Garantizar que el splash desaparezca aunque haya errores
+  const showApp = () => {
+    try { splash.style.display = 'none'; } catch(e) {}
+    try { app.classList.remove('hidden'); } catch(e) {}
+  };
+
+  try {
+    splash.classList.add('out');
+    setTimeout(showApp, 600);
+  } catch(e) {
+    showApp();  // fallback inmediato si la animación falla
+  }
+
+  // Seguro de emergencia: si a los 4s la app sigue oculta, mostrarla de fuerza
   setTimeout(() => {
-    document.getElementById('splash').classList.add('out');
-    setTimeout(() => {
-      document.getElementById('splash').style.display = 'none';
-      document.getElementById('app').classList.remove('hidden');
-    }, 600);
-  }, 1800);
+    if (app.classList.contains('hidden')) {
+      console.warn('[KingaPlay] Splash timeout — mostrando app de emergencia');
+      showApp();
+    }
+  }, 4000);
 }
 
 function applyAppIcon() {

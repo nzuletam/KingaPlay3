@@ -1,12 +1,8 @@
-// KingaPlay Service Worker v3.1
-// Cumple con los requisitos de PWABuilder:
-// - fetch handler presente y funcional
-// - estrategia Cache First para assets
-// - Network First para navegación
-// - No cachea blob URLs (audio/video del usuario)
+// KingaPlay Service Worker v5.0
+// IMPORTANTE: Cambiar CACHE_NAME en cada release fuerza limpieza del caché viejo
 
-const CACHE_NAME    = 'kingaplay-v3';
-const OFFLINE_PAGE  = './index.html';
+const CACHE_NAME   = 'kingaplay-v5';   // ← actualizado desde v3
+const OFFLINE_PAGE = './index.html';
 
 const PRECACHE_ASSETS = [
   './index.html',
@@ -15,82 +11,84 @@ const PRECACHE_ASSETS = [
   './manifest.json',
 ];
 
-// ── INSTALL: precachear assets principales ──
+// INSTALL — precachear assets nuevos
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting())   // activar inmediatamente sin esperar
   );
 });
 
-// ── ACTIVATE: limpiar caches viejos ──
+// ACTIVATE — eliminar TODOS los caches viejos
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(cacheNames => Promise.all(
-        cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+      .then(keys => Promise.all(
+        keys
+          .filter(k => k !== CACHE_NAME)   // borrar kingaplay-v3, v4, etc.
+          .map(k => {
+            console.log('[SW] Eliminando caché viejo:', k);
+            return caches.delete(k);
+          })
       ))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim())    // tomar control de todas las pestañas
   );
 });
 
-// ── FETCH: estrategia híbrida ──
+// FETCH — Network First para navegación, Cache First para assets
 self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
+  const req = event.request;
+  const url = req.url;
 
-  // Ignorar blob URLs (archivos multimedia del usuario)
-  if (request.url.startsWith('blob:')) return;
+  // Ignorar: blob, chrome-extension, data, no-http
+  if (!url.startsWith('http')) return;
+  if (url.startsWith('blob:')) return;
+  if (url.startsWith('chrome-extension:')) return;
 
-  // Ignorar peticiones de extensiones de Chrome
-  if (request.url.startsWith('chrome-extension:')) return;
-
-  // Ignorar peticiones que no sean http/https
-  if (!request.url.startsWith('http')) return;
-
-  // Navegación → Network First con fallback a cache
-  if (request.mode === 'navigate') {
+  // Navegación → Network First (siempre trae versión fresca si hay red)
+  if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .catch(() => caches.match(OFFLINE_PAGE))
-    );
-    return;
-  }
-
-  // Assets propios (mismo origen) → Cache First
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request)
-        .then(cached => {
-          if (cached) return cached;
-          return fetch(request)
-            .then(response => {
-              // Solo cachear respuestas válidas
-              if (!response || response.status !== 200 || response.type === 'opaque') {
-                return response;
-              }
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
-              return response;
-            });
+      fetch(req)
+        .then(res => {
+          // Si la respuesta es válida, actualizamos el caché
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, clone));
+          }
+          return res;
         })
         .catch(() => caches.match(OFFLINE_PAGE))
     );
     return;
   }
 
-  // Recursos externos (fuentes, etc.) → Network con fallback a cache
+  // Assets propios → Network First con fallback a caché
+  try {
+    const origin = new URL(url).origin;
+    if (origin === self.location.origin) {
+      event.respondWith(
+        fetch(req)
+          .then(res => {
+            if (res && res.status === 200 && res.type !== 'opaque') {
+              const clone = res.clone();
+              caches.open(CACHE_NAME).then(c => c.put(req, clone));
+            }
+            return res;
+          })
+          .catch(() => caches.match(req).then(c => c || caches.match(OFFLINE_PAGE)))
+      );
+      return;
+    }
+  } catch(e) {}
+
+  // Recursos externos (Google Fonts, streams, etc.) → Network puro
   event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    fetch(req).catch(() => caches.match(req))
   );
 });
 
-// ── MENSAJE: forzar actualización ──
+// Mensaje para forzar actualización desde la app
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
