@@ -1,5 +1,6 @@
 /* ============================================
    KINGAPLAY v5.0
+   - Fix: ruido visual en Android WebView
    - Fix: listas de reproducción con persistencia real
    - YouTube: embed con búsqueda integrada
    - Radios EEUU: 20 emisoras por género con streams abiertos
@@ -778,23 +779,27 @@ function stopYoutube() {
 const onlineAudio = document.getElementById('onlineAudioEl');
 
 function buildRadioGrids() {
-  // Agrupar las emisoras de EEUU por género
-  const groups = {};
-  RADIOS_US.forEach(r => {
-    if (!groups[r.genre]) groups[r.genre] = [];
-    groups[r.genre].push(r);
-  });
-
   const container = document.getElementById('radioUS');
   if (!container) return;
 
+  // Agrupar por género manteniendo el orden de inserción
+  const groups = {};
+  const genreOrder = [];
+  RADIOS_US.forEach(r => {
+    if (!groups[r.genre]) {
+      groups[r.genre] = [];
+      genreOrder.push(r.genre);
+    }
+    groups[r.genre].push(r);
+  });
+
   let html = '';
-  Object.entries(groups).forEach(([genre, radios]) => {
-    html += `<div class="radio-genre-label">${esc(genre)}</div>`;
-    html += `<div class="radio-grid">`;
+  genreOrder.forEach(genre => {
+    const radios = groups[genre];
+    html += `<div class="radio-genre-label">${esc(genre)}</div><div class="radio-grid">`;
     radios.forEach(r => {
       html +=
-        `<div class="radio-card" data-radio-src="${esc(r.url)}" data-radio-name="${esc(r.name)}" onclick="playRadioCard(this)">` +
+        `<div class="radio-card" data-radio-src="${esc(r.url)}" data-radio-name="${esc(r.name)}">` +
           `<div class="radio-card-name">${esc(r.name)}</div>` +
           `<div class="radio-card-genre">${esc(r.genre)}</div>` +
           `<div class="radio-card-live">EN VIVO</div>` +
@@ -803,14 +808,17 @@ function buildRadioGrids() {
     html += `</div>`;
   });
   container.innerHTML = html;
-}
 
-function playRadioCard(el) {
-  const url  = el.dataset.radioSrc;
-  const name = el.dataset.radioName;
-  startRadio(url, name);
-  document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('playing'));
-  el.classList.add('playing');
+  // Delegación de eventos — un solo listener en el contenedor
+  container.onclick = e => {
+    const card = e.target.closest('.radio-card[data-radio-src]');
+    if (!card) return;
+    const url  = card.dataset.radioSrc;
+    const name = card.dataset.radioName;
+    document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('playing'));
+    card.classList.add('playing');
+    startRadio(url, name);
+  };
 }
 
 function playCustomRadio() {
@@ -952,6 +960,7 @@ function showView(name) {
   if (name === 'favorites') renderFavorites();
   if (name === 'videos')    renderVideos();
   if (name === 'playlists') renderPlaylists();
+  if (name === 'online')    buildRadioGrids();
 }
 
 /* ══ MODALES ═════════════════════════════════ */
