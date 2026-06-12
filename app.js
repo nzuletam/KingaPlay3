@@ -1,9 +1,13 @@
 /* ============================================
    KINGAPLAY v5.0
+   - Fix: ruido visual en Android WebView
+   - Fix: listas de reproducción con persistencia real
+   - YouTube: embed con búsqueda integrada
+   - Radios EEUU: 20 emisoras por género con streams abiertos
    ============================================ */
 'use strict';
 
-const APP_ICON = 'KingaPlay.png';  // ← pon la ruta de tu imagen aquí
+const APP_ICON = 'KingaPlay';  // ← pon la ruta de tu imagen aquí
 
 /* ══ ESTADO ══════════════════════════════════ */
 let library           = [];
@@ -44,7 +48,8 @@ const AUDIO_EXTS = ['mp3','flac','aac','wav','ogg','m4a','wma','opus'];
 const VIDEO_EXTS = ['mp4','mkv','webm','mov','avi','m4v','3gp','ogv','ts'];
 
 /* ══════════════════════════════════════════════════════
-   RADIOS EEUU — Emisoras verificadas con streams abiertos
+   RADIOS EEUU — 20 emisoras verificadas con streams abiertos
+   Organizadas por género
    ══════════════════════════════════════════════════════ */
 const RADIOS_US = [
   // ── NOTICIAS / TALK ──
@@ -84,11 +89,12 @@ const RADIOS_US = [
 
 /* ══ INIT ════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
-  try { applyAppIcon();    } catch(e) { console.warn('applyAppIcon:', e); }
-  try { loadState();       } catch(e) { console.warn('loadState:', e); }
-  try { buildEQ();         } catch(e) { console.warn('buildEQ:', e); }
-  try { buildRadioGrids(); } catch(e) { console.warn('buildRadioGrids:', e); }
-  // Enviar señal al SW para activarse inmediatamente si hay versión nueva
+  try { initAudioListeners(); } catch(e) { console.warn('initAudioListeners:', e); }
+  try { initVideoListeners(); } catch(e) { console.warn('initVideoListeners:', e); }
+  try { applyAppIcon();       } catch(e) { console.warn('applyAppIcon:', e); }
+  try { loadState();          } catch(e) { console.warn('loadState:', e); }
+  try { buildEQ();            } catch(e) { console.warn('buildEQ:', e); }
+  try { buildRadioGrids();    } catch(e) { console.warn('buildRadioGrids:', e); }
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
   }
@@ -146,14 +152,22 @@ function initAudioContext() {
   } catch(e) { audioCtx = null; }
 }
 
-/* ══ AUDIO ELEMENT ═══════════════════════════ */
-const audioEl = document.getElementById('audioEl');
-audioEl.addEventListener('timeupdate',     updateProgress);
-audioEl.addEventListener('ended',          handleEnded);
-audioEl.addEventListener('loadedmetadata', () => updateTotalTime(audioEl.duration));
-audioEl.addEventListener('play',           () => setPlayingUI(true));
-audioEl.addEventListener('pause',          () => setPlayingUI(false));
-audioEl.addEventListener('error',          () => showToast('Error al reproducir el archivo'));
+/* ══ AUDIO ELEMENT ═══════════════════════════
+   IMPORTANTE: los listeners se registran dentro de DOMContentLoaded
+   para garantizar que #audioEl exista en el DOM (fix Android WebView)
+   ─────────────────────────────────────────── */
+let audioEl = null;
+
+function initAudioListeners() {
+  audioEl = document.getElementById('audioEl');
+  if (!audioEl) { console.error('[KingaPlay] #audioEl no encontrado'); return; }
+  audioEl.addEventListener('timeupdate',     updateProgress);
+  audioEl.addEventListener('ended',          handleEnded);
+  audioEl.addEventListener('loadedmetadata', () => updateTotalTime(audioEl.duration));
+  audioEl.addEventListener('play',           () => setPlayingUI(true));
+  audioEl.addEventListener('pause',          () => setPlayingUI(false));
+  audioEl.addEventListener('error',          () => showToast('Error al reproducir el archivo'));
+}
 
 /* ══ ESCANEO ═════════════════════════════════ */
 function scanFiles(type) {
@@ -643,7 +657,7 @@ function setPreset(name, btn) {
 }
 
 /* ══ REPRODUCCIÓN VIDEO ══════════════════════ */
-const videoEl = document.getElementById('videoEl');
+let videoEl = null;
 
 function playVideo(index) {
   if (index < 0 || index >= videoLibrary.length) return;
@@ -746,12 +760,18 @@ function toggleVideoFullscreen() {
   (!document.fullscreenElement && !document.webkitFullscreenElement) ? (req && req.call(wrap)) : (exit && exit.call(document));
 }
 
-videoEl.addEventListener('play',           () => updateVideoPlayIcon(true));
-videoEl.addEventListener('pause',          () => { updateVideoPlayIcon(false); showVideoControls(); });
-videoEl.addEventListener('timeupdate',     updateVideoProgress);
-videoEl.addEventListener('ended',          handleVideoEnded);
-videoEl.addEventListener('loadedmetadata', onVideoMeta);
-videoEl.addEventListener('error',          () => showToast('Error al reproducir el video'));
+function initVideoListeners() {
+  videoEl = document.getElementById('videoEl');
+  if (!videoEl) { console.error('[KingaPlay] #videoEl no encontrado'); return; }
+  videoEl.addEventListener('play',           () => updateVideoPlayIcon(true));
+  videoEl.addEventListener('pause',          () => { updateVideoPlayIcon(false); showVideoControls(); });
+  videoEl.addEventListener('timeupdate',     updateVideoProgress);
+  videoEl.addEventListener('ended',          handleVideoEnded);
+  videoEl.addEventListener('loadedmetadata', onVideoMeta);
+  videoEl.addEventListener('error',          () => showToast('Error al reproducir el video'));
+  // Inicializar onlineAudio también aquí
+  onlineAudio = document.getElementById('onlineAudioEl');
+}
 
 /* ══ ONLINE — YOUTUBE ════════════════════════ */
 function playYoutubeUrl() {
@@ -792,7 +812,7 @@ function stopYoutube() {
 }
 
 /* ══ ONLINE — RADIOS ═════════════════════════ */
-const onlineAudio = document.getElementById('onlineAudioEl');
+let onlineAudio = null;
 
 function buildRadioGrids() {
   const container = document.getElementById('radioUS');
